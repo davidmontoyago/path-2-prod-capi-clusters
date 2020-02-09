@@ -6,17 +6,17 @@ spec:
   clusterNetwork:
     pods:
       cidrBlocks:
-      - 192.168.0.0/16
+      - 10.128.0.0/20
   infrastructureRef:
     apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
     kind: GCPCluster
-    name: pathtoprod-dev
+    name: capg-pathtoprod
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
 kind: GCPCluster
 metadata:
   name: capg-pathtoprod
 spec:
-  project: capg-pathtoprod
+  project: pathtoprod
   region: us-central1
 ---

@@ -1,51 +1,4 @@
 apiVersion: cluster.x-k8s.io/v1alpha2
-kind: Machine
-metadata:
-  name: capg-pathtoprod-controlplane-0
-  labels:
-    cluster.x-k8s.io/control-plane: "true"
-    cluster.x-k8s.io/cluster-name: "capg-pathtoprod"
-spec:
-  version: v1.15.3
-  bootstrap:
-    configRef:
-      apiVersion: bootstrap.cluster.x-k8s.io/v1alpha2
-      kind: KubeadmConfig
-      name: capg-pathtoprod-controlplane-0
-  infrastructureRef:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
-    kind: GCPMachine
-    name: capg-pathtoprod-controlplane-0
----
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
-kind: GCPMachine
-metadata:
-  name: capg-pathtoprod-controlplane-0
-spec:
-  instanceType: n1-standard-2
-  zone: us-central1-a
----
-apiVersion: bootstrap.cluster.x-k8s.io/v1alpha2
-kind: KubeadmConfig
-metadata:
-  name: capg-pathtoprod-controlplane-0
-spec:
-  # For more information about these values,
-  # refer to the Kubeadm Bootstrap Provider documentation.
-  initConfiguration:
-    nodeRegistration:
-      name: '{{ ds.meta_data.hostname }}'
-      kubeletExtraArgs:
-        cloud-provider: gce
-  clusterConfiguration:
-    apiServer:
-      extraArgs:
-        cloud-provider: gce
-    controllerManager:
-      extraArgs:
-        cloud-provider: gce
----
-apiVersion: cluster.x-k8s.io/v1alpha2
 kind: MachineDeployment
 metadata:
   name: capg-pathtoprod-worker
@@ -99,7 +52,7 @@ spec:
       # refer to the Kubeadm Bootstrap Provider documentation.
       joinConfiguration:
         nodeRegistration:
-          name: '{{ ds.meta_data.hostname }}'
+          name: pathtoprod-worker
           kubeletExtraArgs:
             cloud-provider: gce
-```
+---
