@@ -29,11 +29,12 @@ gcp-provider-manifest:
 manager:
 	kubectl apply -f manifests/management/cluster-api-components.yaml
 	kubectl apply -f manifests/management/bootstrap-components.yaml
+	make gcp-provider
 
 # 
 # install gcp infra provider
 # 
 gcp-provider:
-	cat ./manifests/workload/capg/infrastructure-components.yaml \
+	cat ./manifests/management/capg/infrastructure-components.yaml \
   		| envsubst \
   		| kubectl create -f -
