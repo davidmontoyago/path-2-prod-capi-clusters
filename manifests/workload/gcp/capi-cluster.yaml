@@ -17,6 +17,6 @@ kind: GCPCluster
 metadata:
   name: capg-pathtoprod
 spec:
-  project: pathtoprod
+  project: ivory-voyage-267519
   region: us-central1
 ---

@@ -37,4 +37,34 @@ manager:
 gcp-provider:
 	cat ./manifests/management/capg/infrastructure-components.yaml \
   		| envsubst \
-  		| kubectl create -f -
+  		| kubectl apply -f -
+
+#
+# deploy gcp capi cluster
+#
+gcp-cluster:
+	kubectl apply -f ./manifests/workload/gcp/capi-cluster.yaml
+
+#
+# deploy gcp control plane
+#
+gcp-controlplane:
+	kubectl apply -f ./manifests/workload/gcp/capi-controlplane.yaml
+
+
+#
+# deploy gcp worker nodes
+#
+gcp-workers:
+	cat ./manifests/workload/gcp/capi-worker-nodes.yaml \
+		| envsubst \
+		| kubectl apply -f -
+
+gcp-kubeconfig:
+	kubectl get secret capg-pathtoprod-kubeconfig -o json | jq -r .data.value | base64 -D > ./gcp-pathtoprod.kubeconfig
+
+
+gcp-destroy:
+	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capi-worker-nodes.yaml
+	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capi-controlplane.yaml
+	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capi-cluster.yaml
