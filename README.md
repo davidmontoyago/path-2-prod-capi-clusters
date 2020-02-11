@@ -34,6 +34,7 @@ make manager
 cd ../
 git clone https://github.com/kubernetes-sigs/image-builder.git
 cd image-builder/images/capi
+make build-gce-default
 
 # config nat gateway
 gcloud compute routers create nat-router \
@@ -51,7 +52,12 @@ gcloud compute images list --project ${GCP_PROJECT_ID} --no-standard-images --fi
 
 make gcp-cluster
 
-make gcp-controlplane
+# wait for control plane to be ready
+kubectl get cluster capg-pathtoprod -o json | jq -r .status
+
+make gcp-kubeconfig
+
+make gcp-cni
 
 make gcp-workers
 ```

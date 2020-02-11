@@ -29,6 +29,8 @@ gcp-provider-manifest:
 # create local management cluster
 # 
 manager:
+	kubectl apply -f manifests/management/cert-manager.yaml
+	kubectl wait --for=condition=Available --timeout=300s apiservice v1beta1.webhook.cert-manager.io
 	kubectl apply -f manifests/management/cluster-api-components.yaml
 	kubectl apply -f manifests/management/bootstrap-components.yaml
 	make gcp-provider
@@ -46,13 +48,17 @@ gcp-provider:
 #
 gcp-cluster:
 	kubectl apply -f ./manifests/workload/gcp/capi-cluster.yaml
+	make gcp-controlplane
 
 #
 # deploy gcp control plane
 #
 gcp-controlplane:
 	kubectl apply -f ./manifests/workload/gcp/capi-controlplane.yaml
+	kubectl get machines --selector cluster.x-k8s.io/control-plane
 
+gcp-cni:
+	kubectl --kubeconfig=./gcp-pathtoprod.kubeconfig apply -f ./manifests/workload/cni.yaml
 
 #
 # deploy gcp worker nodes
@@ -67,6 +73,7 @@ gcp-kubeconfig:
 
 
 gcp-destroy:
+	kubectl delete --ignore-not-found -f ./manifests/workload/cni.yaml
 	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capi-worker-nodes.yaml
 	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capi-controlplane.yaml
 	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capi-cluster.yaml
