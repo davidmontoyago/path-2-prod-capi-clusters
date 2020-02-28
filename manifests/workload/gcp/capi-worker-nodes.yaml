@@ -23,7 +23,7 @@ spec:
       version: v1.15.3
       bootstrap:
         # FIXME this is supposed to be set by the machine controller - double check
-        data: ${GCP_B64ENCODED_CREDENTIALS}
+        # data: ${GCP_B64ENCODED_CREDENTIALS}
         configRef:
           name: capg-pathtoprod-worker
           apiVersion: bootstrap.cluster.x-k8s.io/v1alpha2
