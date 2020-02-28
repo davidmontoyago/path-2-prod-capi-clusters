@@ -73,7 +73,7 @@ gcp-kubeconfig:
 
 
 gcp-destroy:
-	kubectl delete --ignore-not-found -f ./manifests/workload/cni.yaml
+	kubectl delete --kubeconfig=./gcp-pathtoprod.kubeconfig --ignore-not-found -f ./manifests/workload/cni.yaml
 	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capi-worker-nodes.yaml
 	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capi-controlplane.yaml
 	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capi-cluster.yaml
