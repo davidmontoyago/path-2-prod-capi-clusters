@@ -2,13 +2,18 @@ apiVersion: v1
 kind: Namespace
 metadata:
   labels:
+    cluster.x-k8s.io/provider: cluster-api
     control-plane: cluster-api-controller-manager
   name: capi-system
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.5
   creationTimestamp: null
+  labels:
+    cluster.x-k8s.io/provider: cluster-api
   name: clusters.cluster.x-k8s.io
 spec:
   additionalPrinterColumns:
@@ -26,6 +31,7 @@ spec:
     shortNames:
     - cl
     singular: cluster
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     status: {}
@@ -177,7 +183,11 @@ status:
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.5
   creationTimestamp: null
+  labels:
+    cluster.x-k8s.io/provider: cluster-api
   name: machinedeployments.cluster.x-k8s.io
 spec:
   group: cluster.x-k8s.io
@@ -190,6 +200,7 @@ spec:
     shortNames:
     - md
     singular: machinedeployment
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     scale:
@@ -300,8 +311,8 @@ spec:
                   properties:
                     maxSurge:
                       anyOf:
-                      - type: string
                       - type: integer
+                      - type: string
                       description: 'The maximum number of machines that can be scheduled
                         above the desired number of machines. Value can be an absolute
                         number (ex: 5) or a percentage of desired machines (ex: 10%).
@@ -314,10 +325,11 @@ spec:
                         new MachineSet can be scaled up further, ensuring that total
                         number of machines running at any time during the update is
                         at most 130% of desired machines.'
+                      x-kubernetes-int-or-string: true
                     maxUnavailable:
                       anyOf:
-                      - type: string
                       - type: integer
+                      - type: string
                       description: 'The maximum number of machines that can be unavailable
                         during the update. Value can be an absolute number (ex: 5)
                         or a percentage of desired machines (ex: 10%). Absolute number
@@ -329,6 +341,7 @@ spec:
                         down further, followed by scaling up the new MachineSet, ensuring
                         that the total number of machines available at all times during
                         the update is at least 70% of desired machines.'
+                      x-kubernetes-int-or-string: true
                   type: object
                 type:
                   description: Type of deployment. Currently the only supported strategy
@@ -716,7 +729,11 @@ status:
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.5
   creationTimestamp: null
+  labels:
+    cluster.x-k8s.io/provider: cluster-api
   name: machines.cluster.x-k8s.io
 spec:
   additionalPrinterColumns:
@@ -743,6 +760,7 @@ spec:
     shortNames:
     - ma
     singular: machine
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     status: {}
@@ -1094,7 +1112,11 @@ status:
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.5
   creationTimestamp: null
+  labels:
+    cluster.x-k8s.io/provider: cluster-api
   name: machinesets.cluster.x-k8s.io
 spec:
   group: cluster.x-k8s.io
@@ -1107,6 +1129,7 @@ spec:
     shortNames:
     - ms
     singular: machineset
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     scale:
@@ -1596,6 +1619,8 @@ status:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
+  labels:
+    cluster.x-k8s.io/provider: cluster-api
   name: capi-leader-election-role
   namespace: capi-system
 rules:
@@ -1630,6 +1655,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   creationTimestamp: null
+  labels:
+    cluster.x-k8s.io/provider: cluster-api
   name: capi-manager-role
 rules:
 - apiGroups:
@@ -1733,6 +1760,8 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
+  labels:
+    cluster.x-k8s.io/provider: cluster-api
   name: capi-leader-election-rolebinding
   namespace: capi-system
 roleRef:
@@ -1748,6 +1777,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   creationTimestamp: null
+  labels:
+    cluster.x-k8s.io/provider: cluster-api
   name: capi-manager-rolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -1762,6 +1793,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
+    cluster.x-k8s.io/provider: cluster-api
     control-plane: cluster-api-controller-manager
   name: capi-controller-manager
   namespace: capi-system
@@ -1769,10 +1801,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
+      cluster.x-k8s.io/provider: cluster-api
       control-plane: cluster-api-controller-manager
   template:
     metadata:
       labels:
+        cluster.x-k8s.io/provider: cluster-api
         control-plane: cluster-api-controller-manager
     spec:
       containers:
@@ -1780,7 +1814,7 @@ spec:
         - --enable-leader-election
         command:
         - /manager
-        image: us.gcr.io/k8s-artifacts-prod/cluster-api/cluster-api-controller:v0.2.9
+        image: us.gcr.io/k8s-artifacts-prod/cluster-api/cluster-api-controller:v0.2.10
         imagePullPolicy: IfNotPresent
         name: manager
         resources:

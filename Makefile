@@ -14,8 +14,8 @@ pre-reqs:
 # 
 capi-manifests:
 	# cluster api 
-	curl -L -o ./manifests/management/cluster-api-components.yaml https://github.com/kubernetes-sigs/cluster-api/releases/download/v0.2.9/cluster-api-components.yaml
-	curl -L -o ./manifests/management/bootstrap-components.yaml https://github.com/kubernetes-sigs/cluster-api-bootstrap-provider-kubeadm/releases/download/v0.1.5/bootstrap-components.yaml
+	curl -L -o ./manifests/management/cluster-api-components.yaml https://github.com/kubernetes-sigs/cluster-api/releases/download/v0.2.10/cluster-api-components.yaml
+	curl -L -o ./manifests/management/bootstrap-components.yaml https://github.com/kubernetes-sigs/cluster-api-bootstrap-provider-kubeadm/releases/download/v0.1.6/bootstrap-components.yaml
 	# cert manageer
 	curl -L -o ./manifests/management/cert-manager.yaml https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml
 
