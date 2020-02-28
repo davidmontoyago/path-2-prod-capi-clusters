@@ -34,7 +34,7 @@ spec:
   # refer to the Kubeadm Bootstrap Provider documentation.
   initConfiguration:
     nodeRegistration:
-      name: pathtoprod-master
+      name: '{{ ds.meta_data.local_hostname }}'
       kubeletExtraArgs:
         cloud-provider: gce
   clusterConfiguration:

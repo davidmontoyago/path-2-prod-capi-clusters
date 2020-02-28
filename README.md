@@ -58,6 +58,9 @@ kubectl get cluster capg-pathtoprod -o json | jq -r .status
 
 make gcp-kubeconfig
 
+# wait for apiserver to come up
+kubectl --v=3 --kubeconfig=./gcp-pathtoprod.kubeconfig cluster-info
+
 make gcp-cni
 
 make gcp-workers

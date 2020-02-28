@@ -54,7 +54,7 @@ spec:
       # refer to the Kubeadm Bootstrap Provider documentation.
       joinConfiguration:
         nodeRegistration:
-          name: pathtoprod-worker
+          name: '{{ ds.meta_data.local_hostname }}'
           kubeletExtraArgs:
             cloud-provider: gce
 ---
