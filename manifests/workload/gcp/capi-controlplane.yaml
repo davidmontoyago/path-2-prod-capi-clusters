@@ -6,7 +6,7 @@ metadata:
     cluster.x-k8s.io/control-plane: "true"
     cluster.x-k8s.io/cluster-name: "capg-pathtoprod"
 spec:
-  version: v1.16.2
+  version: v1.15.3
   bootstrap:
     configRef:
       apiVersion: bootstrap.cluster.x-k8s.io/v1alpha2

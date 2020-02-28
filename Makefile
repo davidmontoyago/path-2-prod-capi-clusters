@@ -23,7 +23,7 @@ capi-manifests:
 # get gcp infra provider manifests
 # 
 gcp-provider-manifest:
-	curl -L -o ./manifests/workload/capg/infrastructure-components.yaml https://github.com/kubernetes-sigs/cluster-api-provider-gcp/releases/download/v0.2.0-alpha.2/infrastructure-components.yaml
+	curl -L -o ./manifests/management/capg/infrastructure-components.yaml https://github.com/kubernetes-sigs/cluster-api-provider-gcp/releases/download/v0.2.0-alpha.2/infrastructure-components.yaml
 
 # 
 # create local management cluster

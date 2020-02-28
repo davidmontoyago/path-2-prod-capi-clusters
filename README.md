@@ -34,6 +34,7 @@ make manager
 cd ../
 git clone https://github.com/kubernetes-sigs/image-builder.git
 cd image-builder/images/capi
+# change packer/config/kubernetes.json to use 1.15.3
 make build-gce-default
 
 # config nat gateway

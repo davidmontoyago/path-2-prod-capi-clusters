@@ -20,7 +20,7 @@ spec:
         cluster.x-k8s.io/cluster-name: capg-pathtoprod
         nodepool: nodepool-0
     spec:
-      version: v1.16.2
+      version: v1.15.3
       bootstrap:
         # FIXME this is supposed to be set by the machine controller - double check
         data: ${GCP_B64ENCODED_CREDENTIALS}
