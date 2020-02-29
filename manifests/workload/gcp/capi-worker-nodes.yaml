@@ -29,14 +29,14 @@ spec:
           apiVersion: bootstrap.cluster.x-k8s.io/v1alpha2
           kind: KubeadmConfigTemplate
       infrastructureRef:
-        name: capg-pathtoprod-worker
+        name: capg-worker
         apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
         kind: GCPMachineTemplate
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
 kind: GCPMachineTemplate
 metadata:
-  name: capg-pathtoprod-worker
+  name: capg-worker
 spec:
   template:
     spec:
@@ -50,8 +50,7 @@ metadata:
 spec:
   template:
     spec:
-      # For more information about these values,
-      # refer to the Kubeadm Bootstrap Provider documentation.
+      # https://github.com/kubernetes-sigs/cluster-api/blob/master/bootstrap/kubeadm/api/v1alpha2/kubeadmbootstrapconfig_types.go#L35
       joinConfiguration:
         nodeRegistration:
           name: '{{ ds.meta_data.local_hostname }}'

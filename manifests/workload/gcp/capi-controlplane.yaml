@@ -1,7 +1,8 @@
+# control plane node
 apiVersion: cluster.x-k8s.io/v1alpha2
 kind: Machine
 metadata:
-  name: capg-pathtoprod-controlplane-0
+  name: capg-pathtoprod-controlplane
   labels:
     cluster.x-k8s.io/control-plane: "true"
     cluster.x-k8s.io/cluster-name: "capg-pathtoprod"
@@ -11,32 +12,27 @@ spec:
     configRef:
       apiVersion: bootstrap.cluster.x-k8s.io/v1alpha2
       kind: KubeadmConfig
-      name: capg-pathtoprod-controlplane-0
+      name: capg-pathtoprod-controlplane
   infrastructureRef:
     apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
     kind: GCPMachine
-    name: capg-pathtoprod-controlplane-0
+    name: capg-ctrlplane
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
 kind: GCPMachine
 metadata:
-  name: capg-pathtoprod-controlplane-0
+  # use a short name to avoid Invalid value: "capg-pathtoprod-controlplane.us-central1-a.c.ivory-voyage-267519.internal": must be no more than 63 characters
+  name: capg-ctrlplane
 spec:
   instanceType: n1-standard-2
   zone: us-central1-a
 ---
+# https://github.com/kubernetes-sigs/cluster-api/blob/master/bootstrap/kubeadm/api/v1alpha2/kubeadmbootstrapconfig_types.go
 apiVersion: bootstrap.cluster.x-k8s.io/v1alpha2
 kind: KubeadmConfig
 metadata:
-  name: capg-pathtoprod-controlplane-0
+  name: capg-pathtoprod-controlplane
 spec:
-  # For more information about these values,
-  # refer to the Kubeadm Bootstrap Provider documentation.
-  initConfiguration:
-    nodeRegistration:
-      name: '{{ ds.meta_data.local_hostname }}'
-      kubeletExtraArgs:
-        cloud-provider: gce
   clusterConfiguration:
     apiServer:
       extraArgs:
@@ -44,8 +40,10 @@ spec:
     controllerManager:
       extraArgs:
         cloud-provider: gce
-    # FIXME bootstrap provider is complaining about these - check for newer releases
-    # networking:
-    #   dnsDomain: 
-    #   serviceSubnet:  
+  initConfiguration:
+    nodeRegistration:
+      # https://github.com/kubernetes/kubernetes/blob/master/cmd/kubeadm/app/apis/kubeadm/v1beta1/types.go#L62
+      name: '{{ ds.meta_data.local_hostname }}'
+      kubeletExtraArgs:
+        cloud-provider: gce
 ---
