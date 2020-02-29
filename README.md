@@ -37,17 +37,6 @@ cd image-builder/images/capi
 # change packer/config/kubernetes.json to use 1.15.3
 make build-gce-default
 
-# config nat gateway
-gcloud compute routers create nat-router \
-    --network default \
-    --region us-central1
-gcloud beta compute routers nats create nat-config \
-    --router=nat-router \
-    --auto-allocate-nat-external-ips \
-    --nat-all-subnet-ip-ranges \
-    --enable-logging \
-    --router-region=us-central1
-
 # verify image was published
 gcloud compute images list --project ${GCP_PROJECT_ID} --no-standard-images --filter="family:capi-ubuntu-1804-k8s"
 
