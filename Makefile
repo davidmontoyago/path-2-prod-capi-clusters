@@ -86,7 +86,7 @@ KCONFIG := $(HOME)/.kube/config
 STAMP := $(shell date '+%Y-%m-%d-%H%M%S')
 PWD := $(shell pwd)
 gcp-kubeconfig:
-	kubectl get secret capg-pathtoprod-kubeconfig -o json | jq -r .data.value | base64 -D > ./gcp-pathtoprod.kubeconfig
+	kubectl --cluster=kind-clusterapi get secret capg-pathtoprod-kubeconfig -o json | jq -r .data.value | base64 -D > ./gcp-pathtoprod.kubeconfig
 	cp "$(KCONFIG)" "$(KCONFIG)-backup-$(STAMP)"
 	KUBECONFIG=$(KCONFIG):$(PWD)/gcp-pathtoprod.kubeconfig kubectl config view --merge --flatten > ./tmp
 	mv ./tmp $(KCONFIG)
