@@ -42,15 +42,6 @@ gcloud compute images list --project ${GCP_PROJECT_ID} --no-standard-images --fi
 
 make gcp-cluster
 
-# wait for control plane to be ready
-kubectl get cluster capg-pathtoprod -o json | jq -r .status
-
-make gcp-kubeconfig
-
-# wait for apiserver to come up
-kubectl --v=3 --kubeconfig=./gcp-pathtoprod.kubeconfig cluster-info
-
-make gcp-cni
-
-make gcp-workers
+# watch for nodes
+kubectl --kubeconfig=./gcp-pathtoprod.kubeconfig get nodes -w
 ```

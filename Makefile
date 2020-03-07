@@ -49,6 +49,17 @@ gcp-provider:
 gcp-cluster:
 	kubectl apply -f ./manifests/workload/gcp/capi-cluster.yaml
 	make gcp-controlplane
+	./wait_for_infra_provisioning.sh
+	
+	./wait_for_kubeconfig.sh
+	make gcp-kubeconfig
+	
+	./wait_for_apiserver.sh
+	
+	make gcp-cni
+	./wait_for_cni.sh
+
+	make gcp-workers
 
 #
 # deploy gcp control plane
