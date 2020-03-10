@@ -1,12 +1,17 @@
+GO111MODULE=GO111MODULE=on
+GOCMD=$(GO111MODULE) go
+
 pre-reqs:
+	$(GOCMD) env
+
 	# kind
 	$(GOCMD) get sigs.k8s.io/kind@v0.7.0
 	
 	# clusterawsadm
-	# cd $(HOME)/bin && \
-	# 	 curl -LO https://github.com/kubernetes-sigs/cluster-api-provider-aws/releases/download/v0.4.8/clusterawsadm-darwin-amd64 && \
-	# 	 chmod 700 ./clusterawsadm-darwin-amd64 && \
-	# 	 ln -sf $(HOME)/bin/clusterawsadm-darwin-amd64 $(HOME)/bin/clusterawsadm
+	cd $(HOME)/bin && \
+		 curl -LO https://github.com/kubernetes-sigs/cluster-api-provider-aws/releases/download/v0.4.10/clusterawsadm-darwin-amd64 && \
+		 chmod 700 ./clusterawsadm-darwin-amd64 && \
+		 ln -sf $(HOME)/bin/clusterawsadm-darwin-amd64 $(HOME)/bin/clusterawsadm
 
 
 #
@@ -18,12 +23,24 @@ capi-manifests:
 	curl -L -o ./manifests/management/bootstrap-components.yaml https://github.com/kubernetes-sigs/cluster-api-bootstrap-provider-kubeadm/releases/download/v0.1.6/bootstrap-components.yaml
 	# cert manageer
 	curl -L -o ./manifests/management/cert-manager.yaml https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml
+	
+	make provider-manifests
 
 # 
 # get gcp infra provider manifests
 # 
 gcp-provider-manifest:
 	curl -L -o ./manifests/management/capg/infrastructure-components.yaml https://github.com/kubernetes-sigs/cluster-api-provider-gcp/releases/download/v0.2.0-alpha.2/infrastructure-components.yaml
+
+#
+# get aws infra provider manifests
+#
+aws-provider-manifest:
+	curl -L -o ./manifests/management/capa/infrastructure-components.yaml https://github.com/kubernetes-sigs/cluster-api-provider-aws/releases/download/v0.4.9/infrastructure-components.yaml
+
+provider-manifests:
+	make gcp-provider-manifest
+	make aws-provider-manifest
 
 # 
 # create local management cluster
@@ -42,6 +59,11 @@ gcp-provider:
 	cat ./manifests/management/capg/infrastructure-components.yaml \
   		| envsubst \
   		| kubectl apply -f -
+
+aws-provider:
+	cat ./manifests/management/capa/infrastructure-components.yaml \
+		| envsubst \
+		| kubectl apply -f -
 
 #
 # deploy gcp capi cluster

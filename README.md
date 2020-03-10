@@ -3,21 +3,11 @@
 
 ### Deploy CAPI management cluster
 
-```
-export GCP_PROJECT_ID=<>
-export GOOGLE_APPLICATION_CREDENTIALS=<>
-export GCP_B64ENCODED_CREDENTIALS="$(base64 -i "${GOOGLE_APPLICATION_CREDENTIALS}" | tr -d '\n')"
-
-# gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-gcloud auth configure-docker us.gcr.io
-
+```sh
 make pre-reqs
 
-# get manifests
+# get CAPI manifests + infra providers (AWS, GCP)
 make capi-manifests
-
-# get manifests
-make gcp-provider-manifest
 
 # create management cluster
 kind create cluster --name=clusterapi
@@ -29,7 +19,14 @@ make manager
 
 ### Deploy CAPG workload cluster
 
-```
+```sh
+export GCP_PROJECT_ID=<>
+export GOOGLE_APPLICATION_CREDENTIALS=<>
+export GCP_B64ENCODED_CREDENTIALS="$(base64 -i "${GOOGLE_APPLICATION_CREDENTIALS}" | tr -d '\n')"
+
+# gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+gcloud auth configure-docker us.gcr.io
+
 # build cluster node image with Packer
 cd ../
 git clone https://github.com/kubernetes-sigs/image-builder.git
@@ -44,4 +41,10 @@ make gcp-cluster
 
 # watch for nodes
 kubectl --kubeconfig=./gcp-pathtoprod.kubeconfig get nodes -w
+```
+
+### Deploy CAPA workload cluster
+
+```sh
+
 ```
