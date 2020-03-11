@@ -1,0 +1,51 @@
+# control plane node
+apiVersion: cluster.x-k8s.io/v1alpha2
+kind: Machine
+metadata:
+  name: capa-pathtoprod-controlplane
+  labels:
+    cluster.x-k8s.io/control-plane: "true"
+    cluster.x-k8s.io/cluster-name: "capa-pathtoprod"
+spec:
+  version: v1.15.3
+  bootstrap:
+    configRef:
+      apiVersion: bootstrap.cluster.x-k8s.io/v1alpha2
+      kind: KubeadmConfig
+      name: capa-pathtoprod-controlplane
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+    kind: AWSMachine
+    name: capa-ctrlplane
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+kind: AWSMachine
+metadata:
+  # use a short name to avoid Invalid value: must be no more than 63 characters
+  name: capa-ctrlplane
+spec:
+  instanceType: t3.micro
+  # This IAM profile is part of the pre-requisites.
+  iamInstanceProfile: "control-plane.cluster-api-provider-aws.sigs.k8s.io"
+  sshKeyName: default
+  publicIP: false
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha2
+kind: KubeadmConfig
+metadata:
+  name: capa-pathtoprod-controlplane
+spec:
+  clusterConfiguration:
+    apiServer:
+      extraArgs:
+        cloud-provider: aws
+    controllerManager:
+      extraArgs:
+        cloud-provider: aws
+  initConfiguration:
+    nodeRegistration:
+      # https://github.com/kubernetes/kubernetes/blob/master/cmd/kubeadm/app/apis/kubeadm/v1beta1/types.go#L62
+      name: '{{ ds.meta_data.hostname }}'
+      kubeletExtraArgs:
+        cloud-provider: aws
+--- 

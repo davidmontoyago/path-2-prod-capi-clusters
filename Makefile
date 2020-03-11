@@ -50,7 +50,6 @@ manager:
 	kubectl wait --for=condition=Available --timeout=300s apiservice v1beta1.webhook.cert-manager.io
 	kubectl apply -f manifests/management/cluster-api-components.yaml
 	kubectl apply -f manifests/management/bootstrap-components.yaml
-	make gcp-provider
 
 # 
 # install gcp infra provider
@@ -69,11 +68,11 @@ aws-provider:
 # deploy gcp capi cluster
 #
 gcp-cluster:
-	kubectl apply -f ./manifests/workload/gcp/capi-cluster.yaml
+	kubectl apply -f ./manifests/workload/gcp/capg-cluster.yaml
 	make gcp-controlplane
-	./wait_for_infra_provisioning.sh
+	./wait_for_infra_provisioning.sh "capg-pathtoprod"
 	
-	./wait_for_kubeconfig.sh
+	./wait_for_kubeconfig.sh "capg-pathtoprod"
 	make gcp-kubeconfig
 	
 	./wait_for_apiserver.sh
@@ -101,20 +100,34 @@ gcp-workers:
 		| envsubst \
 		| kubectl apply -f -
 
-# 
-# install kubeconfig
-# 
-KCONFIG := $(HOME)/.kube/config
-STAMP := $(shell date '+%Y-%m-%d-%H%M%S')
-PWD := $(shell pwd)
 gcp-kubeconfig:
 	kubectl --cluster=kind-clusterapi get secret capg-pathtoprod-kubeconfig -o json | jq -r .data.value | base64 -D > ./gcp-pathtoprod.kubeconfig
-	cp "$(KCONFIG)" "$(KCONFIG)-backup-$(STAMP)"
-	KUBECONFIG=$(KCONFIG):$(PWD)/gcp-pathtoprod.kubeconfig kubectl config view --merge --flatten > ./tmp
-	mv ./tmp $(KCONFIG)
+	./install_kubeconfig.sh "gcp-pathtoprod.kubeconfig"
 
 gcp-destroy:
 	-kubectl delete --kubeconfig=./gcp-pathtoprod.kubeconfig --ignore-not-found -f ./manifests/workload/cni.yaml
 	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capi-worker-nodes.yaml
 	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capi-controlplane.yaml
-	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capi-cluster.yaml
+	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capg-cluster.yaml
+
+aws-cluster:
+	kubectl apply -f ./manifests/workload/aws/capa-cluster.yaml
+	make aws-controlplane
+	./wait_for_infra_provisioning.sh "capa-pathtoprod"
+
+	./wait_for_kubeconfig.sh "capa-pathtoprod"
+	make aws-kubeconfig
+
+aws-controlplane:
+	kubectl apply -f ./manifests/workload/aws/capa-controlplane.yaml
+	kubectl get machines --selector cluster.x-k8s.io/control-plane
+
+aws-kubeconfig:
+	kubectl --cluster=kind-clusterapi get secret capa-pathtoprod-kubeconfig -o json | jq -r .data.value | base64 -D > ./aws-pathtoprod.kubeconfig
+	./install_kubeconfig.sh "aws-pathtoprod.kubeconfig"
+
+aws-destroy:
+	# -kubectl delete --kubeconfig=./gcp-pathtoprod.kubeconfig --ignore-not-found -f ./manifests/workload/cni.yaml
+	kubectl delete --ignore-not-found -f ./manifests/workload/aws/capa-worker-nodes.yaml
+	kubectl delete --ignore-not-found -f ./manifests/workload/aws/capa-controlplane.yaml
+	kubectl delete --ignore-not-found -f ./manifests/workload/aws/capa-cluster.yaml

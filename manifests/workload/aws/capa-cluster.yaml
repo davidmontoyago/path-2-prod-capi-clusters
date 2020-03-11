@@ -1,1 +1,28 @@
-# no free tier :(
+apiVersion: cluster.x-k8s.io/v1alpha2
+kind: Cluster
+metadata:
+  name: capa-pathtoprod
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 192.168.0.0/16
+    serviceDomain: pathtoprod
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+    kind: AWSCluster
+    name: capa-pathtoprod
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+kind: AWSCluster
+metadata:
+  name: capa-pathtoprod
+spec:
+  region: ca-central-1
+  sshKeyName: default
+  networkSpec:
+    vpc:
+      id: vpc-c72167af
+    subnets:
+      - cidrBlock: 10.128.0.0/20
+---
