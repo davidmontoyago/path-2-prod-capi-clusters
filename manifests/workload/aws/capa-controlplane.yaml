@@ -28,6 +28,7 @@ spec:
   # This IAM profile is part of the pre-requisites.
   iamInstanceProfile: "control-plane.cluster-api-provider-aws.sigs.k8s.io"
   sshKeyName: default
+  # See https://github.com/kubernetes-sigs/cluster-api-provider-aws/blob/28446b5f4c3aea0b76a5a8e7e21c5394c707c26d/api/v1alpha2/awsmachine_types.go#L55
   publicIP: false
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1alpha2

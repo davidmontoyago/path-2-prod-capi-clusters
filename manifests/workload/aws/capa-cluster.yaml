@@ -21,8 +21,13 @@ spec:
   region: ca-central-1
   sshKeyName: default
   networkSpec:
-    vpc:
-      id: vpc-c72167af
-    subnets:
-      - cidrBlock: 10.128.0.0/20
+    # Managed VPC includes 1 public and 1 private subnet, an Internet Gateway, 
+    # a NAT gateway and a Bastion host on the public subnet that routes through the IGW and 
+    # allows access to the apiserver via port 22
+    cidrBlock: 172.31.32.0/20
+    # TODO configure non managed vpc
+    # vpc:
+    #   id: vpc-c72167af
+    # subnets:
+    #   - cidrBlock: 10.128.0.0/20
 ---

@@ -1,5 +1,6 @@
 GO111MODULE=GO111MODULE=on
 GOCMD=$(GO111MODULE) go
+MANAGER_CLUSTER=kind-clusterapi
 
 pre-reqs:
 	$(GOCMD) env
@@ -101,7 +102,7 @@ gcp-workers:
 		| kubectl apply -f -
 
 gcp-kubeconfig:
-	kubectl --cluster=kind-clusterapi get secret capg-pathtoprod-kubeconfig -o json | jq -r .data.value | base64 -D > ./gcp-pathtoprod.kubeconfig
+	kubectl --context=$(MANAGER_CLUSTER) get secret capg-pathtoprod-kubeconfig -o json | jq -r .data.value | base64 -D > ./gcp-pathtoprod.kubeconfig
 	./install_kubeconfig.sh "gcp-pathtoprod.kubeconfig"
 
 gcp-destroy:
@@ -123,7 +124,7 @@ aws-controlplane:
 	kubectl get machines --selector cluster.x-k8s.io/control-plane
 
 aws-kubeconfig:
-	kubectl --cluster=kind-clusterapi get secret capa-pathtoprod-kubeconfig -o json | jq -r .data.value | base64 -D > ./aws-pathtoprod.kubeconfig
+	kubectl --context=$(MANAGER_CLUSTER) get secret capa-pathtoprod-kubeconfig -o json | jq -r .data.value | base64 -D > ./aws-pathtoprod.kubeconfig
 	./install_kubeconfig.sh "aws-pathtoprod.kubeconfig"
 
 aws-destroy:
