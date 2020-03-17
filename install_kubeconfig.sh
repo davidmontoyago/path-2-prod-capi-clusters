@@ -18,5 +18,7 @@ kubectl config delete-cluster $CLUSTER_NAME || true
 # FIXME in kubeconfig, if usernames match across clusters then the user will conflict and not get udpated
 # See https://github.com/kubernetes/kubernetes/issues/46381#issuecomment-553163639
 
+echo "adding $NEW_KUBECONFIG_FILE to $KCONFIG..."
+
 KUBECONFIG="$KCONFIG:$PWD/$NEW_KUBECONFIG_FILE" kubectl config view --merge --flatten > ./tmp
 mv ./tmp $KCONFIG

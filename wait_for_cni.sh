@@ -1,4 +1,5 @@
 #!/bin/sh
+set -u
 
 echo "waiting for CNI to be ready..."
 sleep 5s

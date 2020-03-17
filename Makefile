@@ -28,10 +28,13 @@ manager:
 	clusterctl config provider --infrastructure aws
 	clusterctl init --infrastructure=aws
 
-#
-# deploy gcp capi cluster
-#
-gcp-cluster:
+switch-to-manager:
+	kubectx $(MANAGER_CLUSTER)
+
+# # # # # # # # # # # # # # # # # # # # # 
+# GCP
+# # # # # # # # # # # # # # # # # # # # # 
+gcp-cluster: switch-to-manager
 	kubectl apply -f ./manifests/workload/gcp/capg-cluster.yaml
 	make gcp-controlplane
 	./wait_for_infra_provisioning.sh "capg-pathtoprod"
@@ -39,16 +42,13 @@ gcp-cluster:
 	./wait_for_kubeconfig.sh "capg-pathtoprod"
 	make gcp-kubeconfig
 	
-	./wait_for_apiserver.sh
+	./wait_for_apiserver.sh "gcp-pathtoprod.kubeconfig"
 	
 	make gcp-cni
 	./wait_for_cni.sh
 
 	make gcp-workers
 
-#
-# deploy gcp control plane
-#
 gcp-controlplane:
 	kubectl apply -f ./manifests/workload/gcp/capi-controlplane.yaml
 	kubectl get machines --selector cluster.x-k8s.io/control-plane
@@ -56,9 +56,6 @@ gcp-controlplane:
 gcp-cni:
 	kubectl --kubeconfig=./gcp-pathtoprod.kubeconfig apply -f ./manifests/workload/cni.yaml
 
-#
-# deploy gcp worker nodes
-#
 gcp-workers:
 	cat ./manifests/workload/gcp/capi-worker-nodes.yaml \
 		| envsubst \
@@ -74,7 +71,10 @@ gcp-destroy:
 	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capi-controlplane.yaml
 	kubectl delete --ignore-not-found -f ./manifests/workload/gcp/capg-cluster.yaml
 
-aws-cluster:
+# # # # # # # # # # # # # # # # # # # # # 
+# AWS
+# # # # # # # # # # # # # # # # # # # # # 
+aws-cluster: switch-to-manager
 	kubectl apply -f ./manifests/workload/aws/capa-cluster.yaml
 	make aws-controlplane
 	./wait_for_infra_provisioning.sh "capa-pathtoprod"
@@ -82,15 +82,17 @@ aws-cluster:
 	./wait_for_kubeconfig.sh "capa-pathtoprod"
 	make aws-kubeconfig
 
+	./wait_for_apiserver.sh "aws-pathtoprod.kubeconfig"
+
 aws-controlplane:
-	kubectl apply -f ./manifests/workload/aws/capa-controlplane.yaml
-	kubectl get machines --selector cluster.x-k8s.io/control-plane
+	kubectl --context=$(MANAGER_CLUSTER) apply -f ./manifests/workload/aws/capa-controlplane.yaml
+	kubectl get machines -l cluster.x-k8s.io/cluster-name=capa-pathtoprod -o json | jq -r ".items[].status"
 
 aws-kubeconfig:
 	kubectl --context=$(MANAGER_CLUSTER) get secret capa-pathtoprod-kubeconfig -o json | jq -r .data.value | base64 -D > ./aws-pathtoprod.kubeconfig
 	./install_kubeconfig.sh "aws-pathtoprod.kubeconfig"
 
-aws-destroy:
+aws-destroy: switch-to-manager
 	# -kubectl delete --kubeconfig=./gcp-pathtoprod.kubeconfig --ignore-not-found -f ./manifests/workload/cni.yaml
 	kubectl delete --ignore-not-found -f ./manifests/workload/aws/capa-worker-nodes.yaml
 	kubectl delete --ignore-not-found -f ./manifests/workload/aws/capa-controlplane.yaml

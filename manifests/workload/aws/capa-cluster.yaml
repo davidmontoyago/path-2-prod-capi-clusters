@@ -11,7 +11,7 @@ spec:
   controlPlaneRef:
     apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
     kind: KubeadmControlPlane
-    name: capa-pathtoprod-control-plane
+    name: capa-pathtoprod-controlplane
   infrastructureRef:
     apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
     kind: AWSCluster
@@ -25,12 +25,11 @@ metadata:
 spec:
   region: ca-central-1
   sshKeyName: default
-  networkSpec:
-    # Managed VPC includes 1 public and 1 private subnet, an Internet Gateway, 
-    # a NAT gateway and a Bastion host on the public subnet that routes through the IGW and 
-    # allows access to the apiserver via port 22
-    cidrBlock: 172.31.32.0/20
-    # TODO configure non managed vpc
+  # TODO configure non managed vpc
+  # networkSpec:
+    # Managed VPC includes 1 public and 1 private subnet, an Internet Gateway & a NAT gateway
+    # subnets:
+    #   - cidrBlock: 10.128.0.0/20
     # vpc:
     #   id: vpc-c72167af
     # subnets:
