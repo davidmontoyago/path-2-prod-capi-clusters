@@ -15,6 +15,9 @@ cp "$KCONFIG" "$KCONFIG-backup-$STAMP"
 CLUSTER_NAME=$(KUBECONFIG=$NEW_KUBECONFIG_FILE kubectl config get-clusters | tail -n1)
 kubectl config delete-cluster $CLUSTER_NAME || true
 
+# remove previous user in case creds changed
+kubectl config unset users.$CLUSTER_NAME-admin
+
 # FIXME in kubeconfig, if usernames match across clusters then the user will conflict and not get udpated
 # See https://github.com/kubernetes/kubernetes/issues/46381#issuecomment-553163639
 
