@@ -1,3 +1,4 @@
+# TODO migrate to v0.3.1
 apiVersion: v1
 kind: Namespace
 metadata:

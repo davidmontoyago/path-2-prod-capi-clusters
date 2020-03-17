@@ -1,4 +1,4 @@
-apiVersion: cluster.x-k8s.io/v1alpha2
+apiVersion: cluster.x-k8s.io/v1alpha3
 kind: Cluster
 metadata:
   name: capa-pathtoprod
@@ -8,15 +8,20 @@ spec:
       cidrBlocks:
       - 192.168.0.0/16
     serviceDomain: pathtoprod
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+    kind: KubeadmControlPlane
+    name: capa-pathtoprod-control-plane
   infrastructureRef:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
     kind: AWSCluster
     name: capa-pathtoprod
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
 kind: AWSCluster
 metadata:
   name: capa-pathtoprod
+  namespace: default
 spec:
   region: ca-central-1
   sshKeyName: default

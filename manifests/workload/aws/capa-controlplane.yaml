@@ -1,52 +1,49 @@
-# control plane node
-apiVersion: cluster.x-k8s.io/v1alpha2
-kind: Machine
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+kind: KubeadmControlPlane
 metadata:
   name: capa-pathtoprod-controlplane
-  labels:
-    cluster.x-k8s.io/control-plane: "true"
-    cluster.x-k8s.io/cluster-name: "capa-pathtoprod"
+  namespace: default
 spec:
-  version: v1.15.3
-  bootstrap:
-    configRef:
-      apiVersion: bootstrap.cluster.x-k8s.io/v1alpha2
-      kind: KubeadmConfig
-      name: capa-pathtoprod-controlplane
-  infrastructureRef:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
-    kind: AWSMachine
-    name: capa-ctrlplane
+  # control plane machine count
+  replicas: 1
+  version: v1.17.3
+  infrastructureTemplate:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+    kind: AWSMachineTemplate
+    name: capa-pathtoprod-controlplane
+  kubeadmConfigSpec:
+    clusterConfiguration:
+      apiServer:
+        extraArgs:
+          cloud-provider: aws
+      controllerManager:
+        extraArgs:
+          cloud-provider: aws
+    initConfiguration:
+      nodeRegistration:
+        # https://github.com/kubernetes/kubernetes/blob/master/cmd/kubeadm/app/apis/kubeadm/v1beta1/types.go#L62
+        name: '{{ ds.meta_data.hostname }}'
+        kubeletExtraArgs:
+          cloud-provider: aws
+    joinConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          cloud-provider: aws
+        name: '{{ ds.meta_data.local_hostname }}'
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
-kind: AWSMachine
-metadata:
-  # use a short name to avoid Invalid value: must be no more than 63 characters
-  name: capa-ctrlplane
-spec:
-  instanceType: t3.micro
-  # This IAM profile is part of the pre-requisites.
-  iamInstanceProfile: "control-plane.cluster-api-provider-aws.sigs.k8s.io"
-  sshKeyName: default
-  # See https://github.com/kubernetes-sigs/cluster-api-provider-aws/blob/28446b5f4c3aea0b76a5a8e7e21c5394c707c26d/api/v1alpha2/awsmachine_types.go#L55
-  publicIP: false
----
-apiVersion: bootstrap.cluster.x-k8s.io/v1alpha2
-kind: KubeadmConfig
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: AWSMachineTemplate
 metadata:
   name: capa-pathtoprod-controlplane
+  namespace: default
 spec:
-  clusterConfiguration:
-    apiServer:
-      extraArgs:
-        cloud-provider: aws
-    controllerManager:
-      extraArgs:
-        cloud-provider: aws
-  initConfiguration:
-    nodeRegistration:
-      # https://github.com/kubernetes/kubernetes/blob/master/cmd/kubeadm/app/apis/kubeadm/v1beta1/types.go#L62
-      name: '{{ ds.meta_data.hostname }}'
-      kubeletExtraArgs:
-        cloud-provider: aws
---- 
+  template:
+    spec:
+      instanceType: t3.micro
+      # This IAM profile is configured as part of the pre-requisites.
+      iamInstanceProfile: control-plane.cluster-api-provider-aws.sigs.k8s.io
+      sshKeyName: default
+      # See https://github.com/kubernetes-sigs/cluster-api-provider-aws/blob/28446b5f4c3aea0b76a5a8e7e21c5394c707c26d/api/v1alpha2/awsmachine_types.go#L55
+      publicIP: false
+---

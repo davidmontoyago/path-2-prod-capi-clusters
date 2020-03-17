@@ -7,6 +7,12 @@ pre-reqs:
 
 	# kind
 	$(GOCMD) get sigs.k8s.io/kind@v0.7.0
+
+	# clusterctl
+	cd $(HOME)/bin && \
+		curl -LO https://github.com/kubernetes-sigs/cluster-api/releases/download/v0.3.0/clusterctl-darwin-amd64 && \
+		chmod 700 ./clusterctl-darwin-amd64 && \
+		ln -sf $(HOME)/bin/clusterctl-darwin-amd64 $(HOME)/bin/clusterctl
 	
 	# clusterawsadm
 	cd $(HOME)/bin && \
@@ -14,56 +20,13 @@ pre-reqs:
 		 chmod 700 ./clusterawsadm-darwin-amd64 && \
 		 ln -sf $(HOME)/bin/clusterawsadm-darwin-amd64 $(HOME)/bin/clusterawsadm
 
-
-#
-# get cluster api and bootstrap provider manifests
-# 
-capi-manifests:
-	# cluster api 
-	curl -L -o ./manifests/management/cluster-api-components.yaml https://github.com/kubernetes-sigs/cluster-api/releases/download/v0.2.10/cluster-api-components.yaml
-	curl -L -o ./manifests/management/bootstrap-components.yaml https://github.com/kubernetes-sigs/cluster-api-bootstrap-provider-kubeadm/releases/download/v0.1.6/bootstrap-components.yaml
-	# cert manageer
-	curl -L -o ./manifests/management/cert-manager.yaml https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml
-	
-	make provider-manifests
-
-# 
-# get gcp infra provider manifests
-# 
-gcp-provider-manifest:
-	curl -L -o ./manifests/management/capg/infrastructure-components.yaml https://github.com/kubernetes-sigs/cluster-api-provider-gcp/releases/download/v0.2.0-alpha.2/infrastructure-components.yaml
-
-#
-# get aws infra provider manifests
-#
-aws-provider-manifest:
-	curl -L -o ./manifests/management/capa/infrastructure-components.yaml https://github.com/kubernetes-sigs/cluster-api-provider-aws/releases/download/v0.4.9/infrastructure-components.yaml
-
-provider-manifests:
-	make gcp-provider-manifest
-	make aws-provider-manifest
-
 # 
 # create local management cluster
 # 
 manager:
-	kubectl apply -f manifests/management/cert-manager.yaml
-	kubectl wait --for=condition=Available --timeout=300s apiservice v1beta1.webhook.cert-manager.io
-	kubectl apply -f manifests/management/cluster-api-components.yaml
-	kubectl apply -f manifests/management/bootstrap-components.yaml
-
-# 
-# install gcp infra provider
-# 
-gcp-provider:
-	cat ./manifests/management/capg/infrastructure-components.yaml \
-  		| envsubst \
-  		| kubectl apply -f -
-
-aws-provider:
-	cat ./manifests/management/capa/infrastructure-components.yaml \
-		| envsubst \
-		| kubectl apply -f -
+	# TODO waiting on https://github.com/kubernetes-sigs/cluster-api/pull/2684 for GCP infra provider
+	clusterctl config provider --infrastructure aws
+	clusterctl init --infrastructure=aws
 
 #
 # deploy gcp capi cluster
